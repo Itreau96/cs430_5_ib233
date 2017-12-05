@@ -1,2 +1,24 @@
-<canvas id="canvas" width="500" height="500"></canvas>
-<script src="demo.js"></script>
+<!DOCTYPE html>
+<html>
+  <title>Image Viewer</title>
+  <meta charset="UTF-8">
+  <body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script src="image_viewer.js"></script>
+    <form>
+      <button type="button" onClick="trans()">TRANSLATE</button>
+      <input id="transx" type="text">
+      <input id="transy" type="text"><br>
+
+      <button type="button" onClick="shear()">SHEAR</button>
+      <input id="shearx" type="text">
+      <input id="sheary" type="text"><br>
+
+      <button type="button" onClick="rotate()">ROTATE</button>
+      <input id="rotval" type="text"><br>
+
+      <button type="button" onClick="scale()">SCALE</button>
+      <input id="scaleval" type="text"><br>
+    </form>
+  </body>
+</html>

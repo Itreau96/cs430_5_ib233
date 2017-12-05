@@ -33,18 +33,17 @@ var positions = [
 
   1, 0,
   0, 1,
-  1, 1,
+  1, 1
 ];
 
-// Translation vector
-var translateUp = [
+// Initial texture coordinates
+var texcoords = [
+  0, 0,
   0, 1,
-  0, 1,
-  0, 1,
-
+  1, 0,
   1, 0,
   0, 1,
-  1, 1,
+  1, 1
 ];
 
 function loadShader(gl, shaderSource, shaderType) {
@@ -95,18 +94,8 @@ function main() {
 
   gl.enableVertexAttribArray(positionLocation);
 
-  gl.vertexAttribPointer(
-      positionLocation, 2, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-  var texcoords = [
-    0, 0,
-    0, 1,
-    1, 0,
-    1, 0,
-    0, 1,
-    1, 1,
-  ];
-  
   var texcoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
@@ -151,7 +140,6 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D, image);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-
   }
 
   function render(time) {
@@ -163,3 +151,107 @@ function main() {
 }
 
 main();
+
+// Function used to shear image
+function shear()
+{
+  // Get sheer values
+  var sheerx = parseFloat(document.getElementById('shearx').value);
+  var sheery = parseFloat(document.getElementById('sheary').value);
+
+  // Loop through each value pair
+  for (var i = 0, size = positions.length; i < size; i+=2)
+  {
+      // Get x and y coordinates
+      var x = positions[i];
+      var y = positions[i+1];
+
+      // Multiply x and y values by sheer factors
+      x = x + sheerx * y;
+      y = sheery * x + y;
+
+      // Set position values
+      positions[i] = x;
+      positions[i+1] = y;
+  }
+
+  main();
+}
+
+// Function used to translate image
+function trans()
+{
+  // Start by finding amounts to translate by
+  var transx = document.getElementById('transx').value;
+  var transy = document.getElementById('transy').value;
+
+  // Use for loop to translate position by a certain amount
+  for (var i = 1, size = positions.length; i <= size; i++)
+  {
+    // If odd, add x value
+    if (i % 2 != 0)
+    {
+      positions[i-1] += parseFloat(transx);
+    }
+    // If even, add y value
+    else
+    {
+      positions[i-1] += parseFloat(transy);
+    }
+  }
+
+  // Redraw image
+  main();
+}
+
+// Function used to rotate image
+function rotate()
+{
+  // Get rotation value
+  var rotval = parseFloat(document.getElementById('rotval').value);
+
+  // Loop through each value pair
+  for (var i = 0, size = positions.length; i < size; i+=2)
+  {
+      // Get x and y coordinates
+      var x = positions[i];
+      var y = positions[i+1];
+
+      // Perform x and y calculation based on affine matrix values
+      x = x * Math.cos(rotval) - y * (Math.sin(rotval));
+      y = x * Math.sin(rotval) + y * Math.cos(rotval);
+
+      // Set position values
+      positions[i] = x;
+      positions[i+1] = y;
+  }
+
+  // Redraw image
+  main();
+}
+
+// Function used to scale image
+function scale()
+{
+  // Get scale value
+  var scale = parseFloat(document.getElementById('scaleval').value);
+
+  // Loop through each value pair
+  for (var i = 0, size = positions.length; i < size; i+=2)
+  {
+      // Get x and y coordinates
+      var x = positions[i];
+      var y = positions[i+1];
+
+      // Multiply x and y valu by scale value
+      x = x * scale;
+      y =y * scale;
+
+      // Set position values
+      positions[i] = x;
+      positions[i+1] = y;
+  }
+
+  // Redraw the image
+  main();
+}
