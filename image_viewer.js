@@ -41,10 +41,15 @@ var texcoords = [
   0, 0,
   0, 1,
   1, 0,
+
   1, 0,
   0, 1,
   1, 1
 ];
+
+// Reference to the picture name and image bring rendered
+var fName = "";
+var image;
 
 function loadShader(gl, shaderSource, shaderType) {
   var shader = gl.createShader(shaderType);
@@ -70,7 +75,7 @@ function loadProgram(gl) {
   return program;
 }
 
-function main() {
+function loadImage() {
   var canvas = document.getElementById("canvas");
   var gl = canvas.getContext("webgl2");
 
@@ -79,6 +84,30 @@ function main() {
   }
 
   var program = loadProgram(gl);
+
+  function loadTexture(url) {
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                  new Uint8Array([0, 0, 255, 255]));
+
+    var img = new Image();
+    img.addEventListener('load', function() {
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.generateMipmap(gl.TEXTURE_2D);
+    });
+    img.src = url;
+
+    return tex;
+  }
+
+  // Only load texture if image is null
+  if (!image || fName != document.getElementById('fname').value)
+  {
+    fName = document.getElementById('fname').value;
+    image = loadTexture(fName);
+  }
 
   var positionLocation = gl.getAttribLocation(program, "a_position");
   var texcoordLocation = gl.getAttribLocation(program, "a_texcoord");
@@ -102,27 +131,7 @@ function main() {
 
   gl.enableVertexAttribArray(texcoordLocation);
 
-  gl.vertexAttribPointer(
-      texcoordLocation, 2, gl.FLOAT, true, 0, 0);
-
-  function loadTexture(url) {
-    var tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                  new Uint8Array([0, 0, 255, 255]));
-
-    var img = new Image();
-    img.addEventListener('load', function() {
-      gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-      gl.generateMipmap(gl.TEXTURE_2D);
-    });
-    img.src = url;
-
-    return tex;
-  }
-
-  var image = loadTexture('stone1.png');
+  gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, true, 0, 0);
 
   function draw() {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -147,18 +156,97 @@ function main() {
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
-
 }
 
-main();
+// Keyboard numbers
+var LEFT = 37;
+var UP = 38;
+var RIGHT = 39;
+var DOWN = 40;
+
+// Key handler used to determine which transform to apply
+window.onkeydown = function(e) {
+  // Retrieve transform value
+  var transform = document.getElementById('transform').value;
+  
+  // Retrieve key type
+  var key = e.keyCode ? e.keyCode : e.which;
+
+  // Determine if translate transform
+  if (transform == "translate")
+  {
+    // Translate by direction
+    if (key == LEFT)
+    {
+      trans(-0.01, 0);
+    }
+    else if (key == RIGHT)
+    {
+      trans(0.01, 0);
+    }
+    else if (key == UP)
+    {
+      trans(0, 0.01);
+    }
+    else if (key == DOWN)
+    {
+      trans(0, -0.01);
+    }
+  }
+  // Determine if shear transform
+  else if (transform == "shear")
+  {
+    // Shear by direction
+    if (key == LEFT)
+    {
+      shear(-0.01, 0);
+    }
+    else if (key == RIGHT)
+    {
+      shear(0.01, 0);
+    }
+    else if (key == UP)
+    {
+      shear(0, 0.01);
+    }
+    else if (key == DOWN)
+    {
+      shear(0, -0.01);
+    }
+  }
+  // Determine if rotate transform
+  else if (transform == "rotate")
+  {
+    // Determine if rotate counter clock wise
+    if (key == LEFT)
+    {
+      rotate(-0.01);
+    }
+    // Determine if rotate clock wise
+    else if (key == RIGHT)
+    {
+      rotate(0.01);
+    }
+  }
+  // Determine if scale transform
+  else if (transform == "scale")
+  {
+    // Determine if scale up
+    if (key == UP)
+    {
+      scale(0.01);
+    }
+    // Determine if scale down
+    else if (key == DOWN)
+    {
+      scale(-0.01);
+    }
+  }
+}
 
 // Function used to shear image
-function shear()
+function shear(shearx, sheary)
 {
-  // Get sheer values
-  var sheerx = parseFloat(document.getElementById('shearx').value);
-  var sheery = parseFloat(document.getElementById('sheary').value);
-
   // Loop through each value pair
   for (var i = 0, size = positions.length; i < size; i+=2)
   {
@@ -167,24 +255,20 @@ function shear()
       var y = positions[i+1];
 
       // Multiply x and y values by sheer factors
-      x = x + sheerx * y;
-      y = sheery * x + y;
+      x = x + shearx * y;
+      y = sheary * x + y;
 
       // Set position values
       positions[i] = x;
       positions[i+1] = y;
   }
 
-  main();
+  loadImage();
 }
 
 // Function used to translate image
-function trans()
+function trans(transx, transy)
 {
-  // Start by finding amounts to translate by
-  var transx = document.getElementById('transx').value;
-  var transy = document.getElementById('transy').value;
-
   // Use for loop to translate position by a certain amount
   for (var i = 1, size = positions.length; i <= size; i++)
   {
@@ -201,15 +285,12 @@ function trans()
   }
 
   // Redraw image
-  main();
+  loadImage();
 }
 
 // Function used to rotate image
-function rotate()
+function rotate(rotval)
 {
-  // Get rotation value
-  var rotval = parseFloat(document.getElementById('rotval').value);
-
   // Loop through each value pair
   for (var i = 0, size = positions.length; i < size; i+=2)
   {
@@ -227,15 +308,12 @@ function rotate()
   }
 
   // Redraw image
-  main();
+  loadImage();
 }
 
 // Function used to scale image
-function scale()
+function scale(scale)
 {
-  // Get scale value
-  var scale = parseFloat(document.getElementById('scaleval').value);
-
   // Loop through each value pair
   for (var i = 0, size = positions.length; i < size; i+=2)
   {
@@ -244,8 +322,8 @@ function scale()
       var y = positions[i+1];
 
       // Multiply x and y valu by scale value
-      x = x * scale;
-      y =y * scale;
+      x += x * scale;
+      y += y * scale;
 
       // Set position values
       positions[i] = x;
@@ -253,5 +331,5 @@ function scale()
   }
 
   // Redraw the image
-  main();
+  loadImage();
 }

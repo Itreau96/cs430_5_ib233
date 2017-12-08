@@ -3,22 +3,19 @@
   <title>Image Viewer</title>
   <meta charset="UTF-8">
   <body>
-    <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="canvas" width="500" height="500"></canvas><br>
+    File name: <input type="text" id="fname" value="stone1.png">
+    <button type="button" onClick="loadImage()">LOAD</button><br>
     <script src="image_viewer.js"></script>
     <form>
-      <button type="button" onClick="trans()">TRANSLATE</button>
-      <input id="transx" type="text">
-      <input id="transy" type="text"><br>
-
-      <button type="button" onClick="shear()">SHEAR</button>
-      <input id="shearx" type="text">
-      <input id="sheary" type="text"><br>
-
-      <button type="button" onClick="rotate()">ROTATE</button>
-      <input id="rotval" type="text"><br>
-
-      <button type="button" onClick="scale()">SCALE</button>
-      <input id="scaleval" type="text"><br>
+      <!-- Select list used to determine which transform to apply -->
+      Select a transform below. Use arrow keys to apply transform.<br>
+      <select id="transform">
+        <option value="translate">TRANSLATE</option>
+        <option value="shear">SHEAR</option>
+        <option value="rotate">ROTATE</option>
+        <option value="scale">SCALE</option>
+      </select>
     </form>
   </body>
 </html>
