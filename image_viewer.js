@@ -147,6 +147,7 @@ function loadImage() {
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, image);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
@@ -168,9 +169,12 @@ var DOWN = 40;
 window.onkeydown = function(e) {
   // Retrieve transform value
   var transform = document.getElementById('transform').value;
-  
+
   // Retrieve key type
   var key = e.keyCode ? e.keyCode : e.which;
+
+  // Prevent arrow keys from modifying select list
+  e.preventDefault();
 
   // Determine if translate transform
   if (transform == "translate")
