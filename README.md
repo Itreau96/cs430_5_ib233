@@ -24,7 +24,7 @@ The contents of the project repository are as follows:
 Follow the steps below to use the program:
 
 1. Using a command line interface, navigate to the project directory containing the project code
-2. Type <pre><code>python -m SimpleHTTPServer 8080</code></pre> to start python web server
+2. Type the following command to start python web server <pre><code>python -m SimpleHTTPServer 8080</code></pre>
 3. In a web browser, type localhost:8080/image_viewer.js to start the application
 4. Follow on-screen instructions to load image and apply transformations
 
